@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-CN"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>社交面具真实度测试</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --primary: #FF7E79;
+    --primary-light: #FFB199;
+    --accent: #FFD93D;
+    --accent2: #6BCB77;
+    --bg1: #FFF5F0;
+    --bg2: #FFE5D9;
+    --card: #FFFBF7;
+    --text: #5A4A42;
+    --text-soft: #9C8B7E;
+    --danger: #E76F51;
+    --line: #F5E6DD;
+    --shadow: 0 10px 40px rgba(255, 126, 121, 0.15);
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+    background: linear-gradient(135deg, var(--bg1) 0%, var(--bg2) 100%);
+    min-height: 100vh;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    line-height: 1.6;
+  }
+  .app { width: 100%; max-width: 720px; }
+
+  .card {
+    background: var(--card);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 40px 36px;
+    animation: fadeIn 0.4s ease;
+    border: 1px solid #FFEDE3;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ===== Welcome ===== */
+  .brand { text-align: center; margin-bottom: 10px; }
+  .logo {
+    display: inline-flex;
+    width: 76px; height: 76px;
+    border-radius: 24px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    align-items: center; justify-content: center;
+    color: #fff; font-size: 38px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 24px rgba(255, 126, 121, 0.35);
+  }
+  h1 {
+    font-size: 26px;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+  }
+  .subtitle { color: var(--text-soft); font-size: 14px; margin-bottom: 28px; }
+
+  .intro-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .intro-item {
+    background: linear-gradient(135deg, #FFF0E8, #FFE5D9);
+    border-radius: 16px;
+    padding: 16px;
+    border-left: 3px solid var(--primary-light);
+  }
+  .intro-item .num {
+    font-size: 22px; font-weight: 700; color: var(--primary);
+  }
+  .intro-item .lbl { font-size: 13px; color: var(--text-soft); margin-top: 2px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 15px 24px;
+    border: none;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #fff;
+    box-shadow: 0 6px 20px rgba(255, 126, 121, 0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255, 126, 121, 0.4); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--text-soft);
+    border: 1.5px solid #F0DED0;
+  }
+  .btn-ghost:hover { background: #FFF0E8; color: var(--primary); }
+
+  .disclaimer {
+    font-size: 12px; color: var(--text-soft); text-align: center;
+    margin-top: 18px; line-height: 1.7;
+  }
+
+  /* ===== Quiz ===== */
+  .progress-wrap { margin-bottom: 24px; }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: var(--text-soft); margin-bottom: 8px;
+  }
+  .progress-meta .cur { color: var(--primary); font-weight: 600; }
+  .progress-bar {
+    height: 8px; background: #FBEDE2; border-radius: 99px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light));
+    border-radius: 99px; transition: width 0.3s ease;
+  }
+
+  .dim-tag {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    background: #FFF0E8; color: var(--primary);
+  }
+  .qtype-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 8px;
+    background: var(--accent); color: #7A5A00;
+    vertical-align: middle;
+  }
+  .question-text {
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 24px;
+    color: var(--text);
+  }
+
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option {
+    display: flex; align-items: center; gap: 14px;
+    padding: 15px 18px;
+    border: 2px solid #FBEDE2;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    background: #fff;
+  }
+  .option:hover { border-color: var(--primary-light); background: #FFF7F2; }
+  .option.selected {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #FFF0E8, #FFE5D9);
+  }
+  .option .dot {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid #EFD5C5;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option.selected .dot {
+    border-color: var(--primary); background: var(--primary);
+  }
+  .option.selected .dot::after {
+    content: ""; width: 8px; height: 8px; border-radius: 50%; background: #fff;
+  }
+  .option .txt { font-size: 15px; flex: 1; }
+  .option .score { margin-left: auto; font-size: 13px; color: var(--text-soft); font-weight: 600; }
+
+  /* Emoji scale type */
+  .emoji-options {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .emoji-opt {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 4px;
+    border: 2px solid #FBEDE2;
+    border-radius: 16px;
+    cursor: pointer;
+    background: #fff;
+    transition: all 0.18s ease;
+  }
+  .emoji-opt:hover { border-color: var(--primary-light); transform: translateY(-2px); }
+  .emoji-opt.selected {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, #FFF0E8, #FFE5D9);
+    box-shadow: 0 4px 14px rgba(255, 126, 121, 0.2);
+  }
+  .emoji-opt .face { font-size: 30px; line-height: 1; }
+  .emoji-opt .cap { font-size: 11px; color: var(--text-soft); font-weight: 600; }
+  .emoji-opt.selected .cap { color: var(--primary); }
+  .emoji-labels {
+    display: flex; justify-content: space-between;
+    font-size: 12px; color: var(--text-soft);
+    padding: 0 4px;
+  }
+
+  /* Scenario / choice options with letter badges */
+  .option .letter {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #FBEDE2; color: var(--text-soft);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 14px; flex-shrink: 0;
+    transition: all 0.18s;
+  }
+  .option.selected .letter {
+    background: var(--primary); color: #fff;
+  }
+
+  .quiz-nav {
+    display: flex; gap: 12px; margin-top: 28px;
+  }
+  .quiz-nav .btn { flex: 1; }
+
+  /* ===== Result ===== */
+  .result-head { text-align: center; margin-bottom: 8px; }
+  .result-score-label { font-size: 14px; color: var(--text-soft); }
+  .result-score {
+    font-size: 64px; font-weight: 800;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+  }
+  .result-score-unit { font-size: 20px; color: var(--text-soft); }
+
+  .type-badge {
+    display: inline-block;
+    margin: 14px auto 0;
+    padding: 8px 22px;
+    border-radius: 99px;
+    font-size: 15px; font-weight: 700;
+  }
+  .type-本真型 { background: #E3F7EA; color: #4A9B6E; }
+  .type-平衡型 { background: #FFF0D6; color: #B8860B; }
+  .type-面具型 { background: #FFE5D9; color: #E07A5F; }
+  .type-深度表演型 { background: #FFD6CF; color: #C94C3C; }
+
+  .section { margin-top: 28px; }
+  .section-title {
+    font-size: 15px; font-weight: 700; color: var(--primary);
+    margin-bottom: 12px; padding-left: 10px;
+    border-left: 4px solid var(--primary-light);
+  }
+
+  .radar-wrap { display: flex; justify-content: center; }
+
+  .dim-list { display: flex; flex-direction: column; gap: 10px; }
+  .dim-row {
+    display: grid;
+    grid-template-columns: 120px 1fr 36px;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+  }
+  .dim-row .name { color: var(--text); font-weight: 600; }
+  .dim-bar-bg { height: 8px; background: #FBEDE2; border-radius: 99px; overflow: hidden; }
+  .dim-bar {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, var(--primary-light), var(--primary));
+    transition: width 0.6s ease;
+  }
+  .dim-row .val { text-align: right; color: var(--text-soft); font-weight: 600; font-size: 13px; }
+
+  .interpretation p {
+    font-size: 14.5px; color: var(--text); line-height: 1.8;
+    background: #FFF7F2; border-radius: 14px; padding: 16px 18px;
+  }
+  .suggestion-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .suggestion-list li {
+    font-size: 14px; color: var(--text);
+    background: #F0FAF2; border-radius: 14px; padding: 14px 16px;
+    border-left: 3px solid var(--accent2);
+    line-height: 1.7;
+  }
+  .suggestion-list li strong { color: var(--accent2); }
+
+  .result-actions { display: flex; gap: 12px; margin-top: 28px; }
+  .result-actions .btn { flex: 1; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 520px) {
+    .card { padding: 28px 20px; }
+    h1 { font-size: 22px; }
+    .question-text { font-size: 17px; }
+    .intro-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .intro-item { padding: 12px; }
+    .dim-row { grid-template-columns: 90px 1fr 32px; gap: 8px; font-size: 13px; }
+    .result-score { font-size: 52px; }
+    .emoji-opt .face { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ============ WELCOME ============ -->
+  <div id="welcome" class="card">
+    <div class="brand">
+      <div class="logo">🎭</div>
+      <h1>社交面具真实度测试</h1>
+      <div class="subtitle">揭示你在社交中的"表演"成分 · 5 维度 · 20 题</div>
+    </div>
+
+    <div class="intro-grid">
+      <div class="intro-item"><div class="num">20</div><div class="lbl">道题目</div></div>
+      <div class="intro-item"><div class="num">4</div><div class="lbl">种题型</div></div>
+      <div class="intro-item"><div class="num">5</div><div class="lbl">个维度</div></div>
+      <div class="intro-item"><div class="num">10-15</div><div class="lbl">分钟完成</div></div>
+    </div>
+
+    <button class="btn btn-primary" onclick="startQuiz()">开始测试 →</button>
+
+    <div class="disclaimer">
+      本测试为自我觉察工具，非临床诊断。<br>
+      适度面具是社会适应能力，只有引发持续内心冲突时才需调整。
+    </div>
+  </div>
+
+  <!-- ============ QUIZ ============ -->
+  <div id="quiz" class="card hidden">
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span>第 <span class="cur" id="curNum">1</span> / 20 题</span>
+        <span id="curDim">维度 A</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:5%"></div></div>
+    </div>
+
+    <div class="dim-tag" id="dimTag">维度 A · 情绪表达一致性</div>
+    <div class="question-text" id="questionText">题目加载中...</div>
+
+    <div id="optionsArea"></div>
+
+    <div class="quiz-nav">
+      <button class="btn btn-ghost" id="prevBtn" onclick="prevQ()">← 上一题</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQ()" disabled="" style="opacity:.5;cursor:not-allowed">下一题 →</button>
+    </div>
+  </div>
+
+  <!-- ============ RESULT ============ -->
+  <div id="result" class="card hidden">
+    <div class="result-head">
+      <div class="result-score-label">你的社交面具真实度</div>
+      <div>
+        <span class="result-score" id="finalScore">0</span>
+        <span class="result-score-unit">/ 100</span>
+      </div>
+      <div class="type-badge" id="typeBadge">--</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">五维度雷达</div>
+      <div class="radar-wrap">
+        <svg id="radar" width="320" height="300" viewBox="0 0 320 300"></svg>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">各维度面具强度</div>
+      <div class="dim-list" id="dimList"></div>
+    </div>
+
+    <div class="section interpretation">
+      <div class="section-title">综合解读</div>
+      <p id="interpretation"></p>
+    </div>
+
+    <div class="section">
+      <div class="section-title">行动建议</div>
+      <ul class="suggestion-list" id="suggestions"></ul>
+    </div>
+
+    <div class="result-actions">
+      <button class="btn btn-ghost" onclick="restart()">重新测试</button>
+      <button class="btn btn-primary" onclick="shareResult()">分享结果</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   题库：5 维度 × 4 题 = 20 题
+   4 种题型：likert(量表) / emoji(表情) / scenario(情景单选) / choice(字母选择)
+   每题选项分值 v：1-5，分数越高 = 面具程度越高 = 真实度越低
+========================================================= */
+const DIMS = {
+  A: { name: '情绪表达一致性', color: '#FF7E79' },
+  B: { name: '价值观行为一致性', color: '#FFB199' },
+  C: { name: '印象管理倾向', color: '#FFD93D' },
+  D: { name: '自我暴露深度', color: '#6BCB77' },
+  E: { name: '情境切换弹性', color: '#E07A5F' }
+};
+
+const LIKERT_OPTS = [
+  { v:1, t:'完全不符合' },
+  { v:2, t:'不太符合' },
+  { v:3, t:'说不清' },
+  { v:4, t:'比较符合' },
+  { v:5, t:'完全符合' }
+];
+
+const EMOJI_OPTS = [
+  { v:1, face:'😌', cap:'完全不像' },
+  { v:2, face:'🙂', cap:'不太像' },
+  { v:3, face:'😐', cap:'说不清' },
+  { v:4, face:'😏', cap:'比较像' },
+  { v:5, face:'🎭', cap:'完全就是' }
+];
+
+const QTYPE_LABEL = { likert:'量表', emoji:'表情', scenario:'情景', choice:'选择' };
+
+const QUESTIONS = [
+  // ===== 维度 A：情绪表达一致性 =====
+  { d:'A', type:'likert', t:'即使心里很不高兴，我也会面带微笑地和别人交流。' },
+  { d:'A', type:'emoji',  t:'和朋友聚会时，你脸上的表情和真实心情的差距有多大？',
+    left:'表里如一', right:'判若两人' },
+  { d:'A', type:'scenario', t:'被同事当众批评后，你的第一反应是？',
+    options:[
+      { v:5, t:'笑着说"好的我改"，心里其实很受伤' },
+      { v:4, t:'面无表情地点头，事后默默消化' },
+      { v:2, t:'当场委婉表达自己的不满' },
+      { v:1, t:'直接回怼，情绪全写在脸上' }
+    ]},
+  { d:'A', type:'choice', t:'你更像哪种"表情管理大师"？',
+    options:[
+      { v:5, t:'永远微笑营业，哪怕内心已经崩溃' },
+      { v:3, t:'看场合，该笑就笑该丧就丧' },
+      { v:1, t:'喜怒哀乐全写脸上，藏不住' }
+    ]},
+
+  // ===== 维度 B：价值观行为一致性 =====
+  { d:'B', type:'likert', t:'我经常在社交中表达一些自己并不真正认同的观点。' },
+  { d:'B', type:'scenario', t:'朋友在群里聊一个你完全不认同的观点，你会？',
+    options:[
+      { v:5, t:'跟着附和，不想扫兴' },
+      { v:4, t:'不说话，默默潜水' },
+      { v:2, t:'委婉提出不同看法' },
+      { v:1, t:'直接表达反对' }
+    ]},
+  { d:'B', type:'likert', t:'为了避免冲突，我会附和他人的意见，即使我完全不同意。' },
+  { d:'B', type:'choice', t:'发朋友圈时，你的真实状态是？',
+    options:[
+      { v:5, t:'精心挑选，只发"人设完美"的内容' },
+      { v:3, t:'偶尔P图、筛选后再发' },
+      { v:1, t:'想到什么发什么，从不考虑形象' }
+    ]},
+
+  // ===== 维度 C：印象管理倾向 =====
+  { d:'C', type:'likert', t:'我很在意别人对我的看法，会提前想好该怎么表现。' },
+  { d:'C', type:'emoji',  t:'出门见人之前，你会花多少心思准备形象和话术？',
+    left:'完全不准备', right:'反复演练' },
+  { d:'C', type:'scenario', t:'第一次见很重要的人，你的状态通常是？',
+    options:[
+      { v:5, t:'提前演练每一句话和每一个表情' },
+      { v:4, t:'大概想一下话题，临场调整' },
+      { v:2, t:'简单收拾一下，顺其自然' },
+      { v:1, t:'完全不准备，做自己就好' }
+    ]},
+  { d:'C', type:'likert', t:'我经常反思"刚才那样说/做会不会让对方不舒服"。' },
+
+  // ===== 维度 D：自我暴露深度 =====
+  { d:'D', type:'likert', t:'即使对很亲近的人，我也很少讲自己内心真实的想法。' },
+  { d:'D', type:'scenario', t:'朋友问你"最近怎么样"，你通常会？',
+    options:[
+      { v:5, t:'说"挺好的"，把真实烦恼咽回去' },
+      { v:4, t:'说一些无关痛痒的近况' },
+      { v:2, t:'简单提一下烦心事，但不深入' },
+      { v:1, t:'如实倾诉自己的状态' }
+    ]},
+  { d:'D', type:'choice', t:'关于自己的脆弱面，你的态度是？',
+    options:[
+      { v:5, t:'绝不让任何人看到' },
+      { v:3, t:'只在极少数人面前偶尔流露' },
+      { v:1, t:'觉得脆弱也是真实的一部分，不介意展现' }
+    ]},
+  { d:'D', type:'likert', t:'身边没有一个人真正了解"全部的我"。' },
+
+  // ===== 维度 E：情境切换弹性 =====
+  { d:'E', type:'likert', t:'在家人、朋友、同事面前，我像是三个完全不同的人。' },
+  { d:'E', type:'scenario', t:'从公司聚会切换到和闺蜜私聊，你通常？',
+    options:[
+      { v:5, t:'无缝切换，完全是两种状态' },
+      { v:3, t:'语气会变，但核心想法差不多' },
+      { v:1, t:'该啥样就啥样，不怎么变' }
+    ]},
+  { d:'E', type:'choice', t:'你觉得自己有几副"面孔"？',
+    options:[
+      { v:5, t:'很多副，见人说人话见鬼说鬼话' },
+      { v:3, t:'两三副，分场合用' },
+      { v:1, t:'就一副，我就是我' }
+    ]},
+  { d:'E', type:'emoji',  t:'不同圈子里的你，相似度有多高？',
+    left:'完全是同一个人', right:'判若好几人' }
+];
+
+/* 类型定义 */
+const TYPES = [
+  { min:0,  max:35,  name:'本真型',      cls:'type-本真型',     desc:'内外高度一致，很少伪装。你敢于展现真实的自己，情绪与行为基本吻合内心。但需注意：真实不等于不顾及他人，偶尔的"软表达"能让社交更顺滑。', sug:[
+    '训练"软表达"技巧——真实观点 + 温和措辞',
+    '在重要场合提前想好用词，避免直白伤人',
+    '保留真诚，同时学会"延迟表达"负面情绪'
+  ]},
+  { min:36, max:55,  name:'平衡型',      cls:'type-平衡型',     desc:'你拥有健康的"面具平衡"。能根据场合适度调整表现，同时不丢失真实自我。这是社会适应与自我真诚的最佳区间，继续保持即可。', sug:[
+    '保持现状，定期自我觉察是否有新增面具领域',
+    '留意压力大时是否出现过度迎合',
+    '维持 1-2 段"无需面具"的深度关系'
+  ]},
+  { min:56, max:75,  name:'面具型',      cls:'type-面具型',     desc:'你经常戴着面具应对社交，长此以往可能积累内心冲突和情绪耗竭。面具已开始影响你对真实自我的感知，值得主动调节。', sug:[
+    '每周安排 1 次"无面具社交"，与安全关系独处并表达真实感受',
+    '识别"我在演"的触发场景，记录并复盘',
+    '尝试在小事上表达真实偏好，逐步建立真实表达的勇气'
+  ]},
+  { min:76, max:100, name:'深度表演型',  cls:'type-深度表演型', desc:'面具已成为你社交中的主导模式，真实自我可能长期被压抑。这并非性格缺陷，但持续的内外分裂容易引发情绪耗竭和关系疏离。建议认真梳理"真实的我"与"别人期待的我"之间的边界。', sug:[
+    '通过书写或咨询梳理"真实自我"，列出我真正在意的事',
+    '区分"我想成为的"和"别人期待的"，逐步减少后者',
+    '从最安全的关系开始，练习暴露真实想法与脆弱',
+    '若感到持续痛苦，考虑寻求专业心理咨询支持'
+  ]}
+];
+
+/* ===== 状态 ===== */
+let cur = 0;
+let answers = new Array(QUESTIONS.length).fill(0);
+let selectedThisRound = false;
+
+/* ===== 启动 ===== */
+function startQuiz() {
+  document.getElementById('welcome').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  cur = 0;
+  answers = new Array(QUESTIONS.length).fill(0);
+  renderQ();
+}
+
+/* ===== 获取某题的选项列表 ===== */
+function getOptions(q) {
+  if (q.type === 'likert') return LIKERT_OPTS;
+  if (q.type === 'emoji') return EMOJI_OPTS;
+  return q.options; // scenario / choice
+}
+
+/* ===== 渲染题目 ===== */
+function renderQ() {
+  const q = QUESTIONS[cur];
+  selectedThisRound = answers[cur] !== 0;
+  const opts = getOptions(q);
+
+  document.getElementById('curNum').textContent = cur + 1;
+  document.getElementById('curDim').textContent = '维度 ' + q.d;
+  document.getElementById('progressFill').style.width = ((cur + 1) / QUESTIONS.length * 100) + '%';
+  document.getElementById('dimTag').innerHTML = '维度 ' + q.d + ' · ' + DIMS[q.d].name
+    + '<span class="qtype-tag">' + QTYPE_LABEL[q.type] + '题</span>';
+  document.getElementById('questionText').textContent = q.t;
+
+  const area = document.getElementById('optionsArea');
+  area.innerHTML = '';
+
+  if (q.type === 'emoji') {
+    // Emoji scale
+    const wrap = document.createElement('div');
+    const row = document.createElement('div');
+    row.className = 'emoji-options';
+    EMOJI_OPTS.forEach(o => {
+      const div = document.createElement('div');
+      div.className = 'emoji-opt' + (answers[cur] === o.v ? ' selected' : '');
+      div.innerHTML = '<div class="face">'+o.face+'</div><div class="cap">'+o.cap+'</div>';
+      div.onclick = () => selectOption(o.v);
+      row.appendChild(div);
+    });
+    wrap.appendChild(row);
+    const labels = document.createElement('div');
+    labels.className = 'emoji-labels';
+    labels.innerHTML = '<span>' + (q.left||'') + '</span><span>' + (q.right||'') + '</span>';
+    wrap.appendChild(labels);
+    area.appendChild(wrap);
+  } else {
+    // likert / scenario / choice
+    const letters = ['A','B','C','D','E'];
+    const list = document.createElement('div');
+    list.className = 'options';
+    opts.forEach((o, i) => {
+      const div = document.createElement('div');
+      div.className = 'option' + (answers[cur] === o.v ? ' selected' : '');
+      if (q.type === 'likert') {
+        div.innerHTML = '<div class="dot"></div><div class="txt">'+o.t+'</div><div class="score">'+o.v+'分</div>';
+      } else {
+        div.innerHTML = '<div class="letter">'+letters[i]+'</div><div class="txt">'+o.t+'</div>';
+      }
+      div.onclick = () => selectOption(o.v);
+      list.appendChild(div);
+    });
+    area.appendChild(list);
+  }
+
+  // 上一题按钮
+  document.getElementById('prevBtn').style.visibility = cur === 0 ? 'hidden' : 'visible';
+
+  // 下一题按钮
+  const nextBtn = document.getElementById('nextBtn');
+  if (selectedThisRound) {
+    nextBtn.disabled = false;
+    nextBtn.style.opacity = '1';
+    nextBtn.style.cursor = 'pointer';
+    nextBtn.textContent = cur === QUESTIONS.length - 1 ? '查看结果 →' : '下一题 →';
+  } else {
+    nextBtn.disabled = true;
+    nextBtn.style.opacity = '.5';
+    nextBtn.style.cursor = 'not-allowed';
+    nextBtn.textContent = '下一题 →';
+  }
+}
+
+function selectOption(v) {
+  answers[cur] = v;
+  selectedThisRound = true;
+  renderQ(); // 重新渲染以更新选中态
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = false;
+  nextBtn.style.opacity = '1';
+  nextBtn.style.cursor = 'pointer';
+  nextBtn.textContent = cur === QUESTIONS.length - 1 ? '查看结果 →' : '下一题 →';
+
+  // 自动跳到下一题（短暂延迟，让用户看到选中反馈）
+  if (cur < QUESTIONS.length - 1) {
+    setTimeout(() => { nextQ(); }, 260);
+  }
+}
+
+function nextQ() {
+  if (!selectedThisRound) return;
+  if (cur < QUESTIONS.length - 1) {
+    cur++;
+    renderQ();
+  } else {
+    showResult();
+  }
+}
+
+function prevQ() {
+  if (cur > 0) { cur--; renderQ(); }
+}
+
+/* ===== 计算结果 ===== */
+function calcResult() {
+  const dimScores = { A:0, B:0, C:0, D:0, E:0 };
+  QUESTIONS.forEach((q, i) => { dimScores[q.d] += answers[i]; });
+  const total = Object.values(dimScores).reduce((a,b)=>a+b, 0);
+  const authenticity = 100 - total;
+  const type = TYPES.find(t => total >= t.min && total <= t.max) || TYPES[TYPES.length-1];
+  return { dimScores, total, authenticity, type };
+}
+
+/* ===== 渲染结果 ===== */
+function showResult() {
+  const r = calcResult();
+  document.getElementById('quiz').classList.add('hidden');
+  document.getElementById('result').classList.remove('hidden');
+
+  animateNumber(document.getElementById('finalScore'), r.authenticity);
+
+  const tb = document.getElementById('typeBadge');
+  tb.textContent = r.type.name;
+  tb.className = 'type-badge ' + r.type.cls;
+
+  drawRadar(r.dimScores);
+
+  const dimList = document.getElementById('dimList');
+  dimList.innerHTML = '';
+  Object.keys(DIMS).forEach(k => {
+    const s = r.dimScores[k];
+    const pct = (s / 20) * 100;
+    const div = document.createElement('div');
+    div.className = 'dim-row';
+    div.innerHTML = '<div class="name">'+DIMS[k].name+'</div>'
+      + '<div class="dim-bar-bg"><div class="dim-bar" style="width:0%"></div></div>'
+      + '<div class="val">'+s+'/20</div>';
+    dimList.appendChild(div);
+    setTimeout(() => { div.querySelector('.dim-bar').style.width = pct + '%'; }, 100);
+  });
+
+  document.getElementById('interpretation').textContent = r.type.desc;
+
+  const sugEl = document.getElementById('suggestions');
+  sugEl.innerHTML = '';
+  r.type.sug.forEach(s => {
+    const li = document.createElement('li');
+    li.innerHTML = '<strong>·</strong> ' + s;
+    sugEl.appendChild(li);
+  });
+
+  const highDims = Object.keys(r.dimScores).filter(k => r.dimScores[k] >= 16);
+  if (highDims.length > 0) {
+    const li = document.createElement('li');
+    li.style.borderLeftColor = 'var(--accent)';
+    li.style.background = '#FFF8E6';
+    li.innerHTML = '<strong>⚠</strong> 你在 <strong>' + highDims.map(k=>DIMS[k].name).join('、') + '</strong> 维度面具突出（≥16分），建议重点关注该领域的真实自我表达。';
+    sugEl.appendChild(li);
+  }
+}
+
+/* ===== 数字滚动动画 ===== */
+function animateNumber(el, target) {
+  let n = 0;
+  const step = Math.max(1, Math.ceil(target / 40));
+  const timer = setInterval(() => {
+    n += step;
+    if (n >= target) { n = target; clearInterval(timer); }
+    el.textContent = n;
+  }, 20);
+}
+
+/* ===== 雷达图 ===== */
+function drawRadar(dimScores) {
+  const svg = document.getElementById('radar');
+  svg.innerHTML = '';
+  const cx = 160, cy = 150, R = 100;
+  const keys = ['A','B','C','D','E'];
+  const n = keys.length;
+  const angle = (i) => -Math.PI/2 + i * 2 * Math.PI / n;
+
+  for (let level = 1; level <= 5; level++) {
+    const r = R * level / 5;
+    const pts = keys.map((_, i) => {
+      const a = angle(i);
+      return (cx + r * Math.cos(a)).toFixed(1) + ',' + (cy + r * Math.sin(a)).toFixed(1);
+    }).join(' ');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', pts);
+    poly.setAttribute('fill', 'none');
+    poly.setAttribute('stroke', '#FBEDE2');
+    poly.setAttribute('stroke-width', '1');
+    svg.appendChild(poly);
+  }
+
+  keys.forEach((_, i) => {
+    const a = angle(i);
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('x1', cx); line.setAttribute('y1', cy);
+    line.setAttribute('x2', cx + R * Math.cos(a));
+    line.setAttribute('y2', cy + R * Math.sin(a));
+    line.setAttribute('stroke', '#FBEDE2');
+    line.setAttribute('stroke-width', '1');
+    svg.appendChild(line);
+  });
+
+  const dataPts = keys.map((k, i) => {
+    const a = angle(i);
+    const r = R * (dimScores[k] / 20);
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  });
+  const dataPtsStr = dataPts.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+
+  const dataPoly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+  dataPoly.setAttribute('points', dataPtsStr);
+  dataPoly.setAttribute('fill', 'rgba(255, 126, 121, 0.22)');
+  dataPoly.setAttribute('stroke', '#FF7E79');
+  dataPoly.setAttribute('stroke-width', '2');
+  svg.appendChild(dataPoly);
+
+  dataPts.forEach(p => {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    c.setAttribute('cx', p[0]); c.setAttribute('cy', p[1]);
+    c.setAttribute('r', '4');
+    c.setAttribute('fill', '#FF7E79');
+    svg.appendChild(c);
+  });
+
+  keys.forEach((k, i) => {
+    const a = angle(i);
+    const lx = cx + (R + 28) * Math.cos(a);
+    const ly = cy + (R + 28) * Math.sin(a);
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', lx); text.setAttribute('y', ly);
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('dominant-baseline', 'middle');
+    text.setAttribute('font-size', '12');
+    text.setAttribute('font-weight', '600');
+    text.setAttribute('fill', '#9C8B7E');
+    text.textContent = DIMS[k].name;
+    svg.appendChild(text);
+  });
+}
+
+/* ===== 分享 ===== */
+function shareResult() {
+  const r = calcResult();
+  const text = `我的社交面具真实度测试结果：真实度 ${r.authenticity}/100，类型【${r.type.name}】。你也来测测吧！`;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('结果文案已复制到剪贴板，快去分享吧！');
+    });
+  } else {
+    prompt('复制以下文案分享：', text);
+  }
+}
+
+function restart() {
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('welcome').classList.remove('hidden');
+}
+
+/* 键盘支持 */
+document.addEventListener('keydown', (e) => {
+  if (document.getElementById('quiz').classList.contains('hidden')) return;
+  const q = QUESTIONS[cur];
+  const opts = getOptions(q);
+  // 数字键 1-5 选择
+  if (e.key >= '1' && e.key <= '5') {
+    const idx = parseInt(e.key) - 1;
+    if (idx < opts.length) selectOption(opts[idx].v);
+  } else if (e.key === 'ArrowLeft') {
+    prevQ();
+  } else if (e.key === 'ArrowRight' && selectedThisRound) {
+    nextQ();
+  }
+});
+</script>
+
+
+</body></html>
